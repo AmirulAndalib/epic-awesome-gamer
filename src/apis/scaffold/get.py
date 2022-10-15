@@ -147,7 +147,7 @@ class IReallyWantToStayAtYourHouse:
             inline_docker=self.inline_docker,
             key_images=self.key_images,
         ):
-            logger.info(f"Notify [MessagePusher] 推送运行日志 - {active_pusher=}")
+            logger.info(f"Notify [MessagePusher] Push run log - {active_pusher=}")
 
     def save_order_history(self):
         with open(self.path_order_history, "w", encoding="utf8") as file:
