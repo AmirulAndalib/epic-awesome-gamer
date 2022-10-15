@@ -56,15 +56,15 @@ class IReallyWantToStayAtYourHouse:
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        # 推送消息
+        # Push messages
         self.push_all_message()
-        # 关闭挑战者上下文
+        # Close the challenger context
         try:
             if self._ctx_session:
                 self._ctx_session.quit()
         except AttributeError:
             pass
-        # 缓存订单数据和商城数据
+        # Caching of order data and store data
         self.save_order_history()
         self.save_ctx_store()
 
@@ -84,47 +84,47 @@ class IReallyWantToStayAtYourHouse:
                 data = yaml.safe_load(file)
             with suppress(TypeError, AttributeError):
                 if path_memory == self.path_order_history:
-                    logger.info(f"加载历史订单数据 本地缓存{remain_interval}小时有效")
+                    logger.info(f"Loading historical order data, Local cache {remain_interval} hours valid")
                     self.namespaces = data or self.namespaces
                 elif path_memory == self.path_ctx_store:
-                    logger.info(f"加载历史商城数据 本地缓存{remain_interval}小时有效")
+                    logger.info(f"Loading historical store data, Local cache {remain_interval} hours valid")
                     for game in data["_games"]:
                         self.game_pool.put(**game)
                         self.total_free_games += 1
 
     def get_ctx_store(self):
-        # 获取商城免费游戏数据
+        # Get free game data from the epic store
         if self.game_pool.empty():
-            logger.info("更新商城数据")
+            logger.info("Update store data")
             self._ctx_session = self._ctx_session or get_challenge_ctx()
             store_explorer = new_store_explorer(self._ctx_cookies, self._ctx_session)
             store_explorer.discovery_free_games(game_pool=self.game_pool)
             self.total_free_games = store_explorer.total_free_games
-            # 缓存商城免费游戏数据
+            # Caching the free Epic Store game data
             self.save_ctx_store()
 
     def get_oder_history(self):
-        # 获取玩家历史订单数据
+        # Getting the user's historical order data
         if not self.namespaces:
-            logger.info("更新订单数据")
+            logger.info("Updating order data")
             explorer = Explorer()
             if resp := explorer.get_order_history(self._ctx_cookies):
                 pages = int((explorer.orders_count * 1.2 - len(resp)) / 10) + 1
                 for page in range(1, pages + 1):
                     explorer.get_order_history(self._ctx_cookies, page=str(page))
                 self.namespaces = explorer.namespaces
-            # 緩存歷史訂單數據
+            # Caching the historical order data
             self.save_order_history()
 
     def offload(self, task_list):
         if not task_list:
             return
 
-        # 檢查挑戰者上下文的備戰狀態
+        # Checking the Preparation of the challenger context
         self._ctx_session = self._ctx_session or get_challenge_ctx()
-        # 在任务发起前将购物车内商品移至愿望清单
+        # Moving the shopping cart items to wish list before initiating task
         self.claimer.cart_balancing(self._ctx_cookies, self._ctx_session)
-        # CLAIM_MODE_ADD 将未领取的促销实体逐项移至购物车后一并处理
+        # CLAIM_MODE_ADD Moving unclaimed promotional games item by item to the shopping cart and processing them together
         for game in task_list:
             self.claimer.promotion2result[game.url] = game.title
             result = claim_stabilizer(self.claimer, game.url, self._ctx_cookies, self._ctx_session)
@@ -163,7 +163,7 @@ class IReallyWantToStayAtYourHouse:
         self.get_oder_history()
 
         task_list = self.game_pool.filter_games(self.namespaces)
-        logger.info(f"当前玩家 {self.player} 可领取 {self.total_free_games} 款常驻免费游戏")
-        logger.info(f"当前玩家 {self.player} 仍有 {len(task_list)} 款免费游戏尚未领取")
+        logger.info(f"Current User's {self.player} Available {self.total_free_games} claimed free games")
+        logger.info(f"Current User {self.player} There are still {len(task_list)} Free games which aren't claimed yet!")
 
         self.offload(task_list=task_list)
