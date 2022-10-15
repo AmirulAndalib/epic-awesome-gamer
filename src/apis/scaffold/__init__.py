@@ -22,5 +22,5 @@ import sys
 
 for policy in ["epic", "claim"]:
     if policy in os.getenv("GITHUB_REPOSITORY", "").lower():
-        print(f"[EXIT] 仓库名出现非法关键词 `{policy}`")
+        print(f"[EXIT] Illegal Keywords `{policy}`")
         sys.exit()
