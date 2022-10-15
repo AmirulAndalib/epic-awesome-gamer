@@ -19,7 +19,7 @@ def get_logger(start: typing.Optional[bool] = False):
         "dir_screenshot": os.path.join(os.path.dirname(DIR_LOG), "challenge_result"),
     }
 
-    # 自动打开日志目录
+    # Automatically open the log directory
     if start is True:
         if sys.platform == "win32":
             os.startfile(DIR_LOG)
@@ -30,11 +30,11 @@ def get_logger(start: typing.Optional[bool] = False):
                 print(f"{name} --> {path_}")
         return
 
-    # 回显日志序列
+    # Echo log sequence
     _session = []
 
-    # 依据启动信号分割日志
-    # 获取最近一次 Scaffold 指令的运行日志
+    # Segmentation of logs based on start cmd's
+    # Get the log of the last Scaffold command
     with open(path_runtime_log, "r", encoding="utf8") as file:
         data = file.readlines()
     for i in data[::-1]:
@@ -42,7 +42,7 @@ def get_logger(start: typing.Optional[bool] = False):
         if ">> STARTUP [AwesomeScheduler]" in i:
             break
 
-    # 打印回显日志
+    # Print back the logs
     for i in _session[::-1]:
         print(i)
 
