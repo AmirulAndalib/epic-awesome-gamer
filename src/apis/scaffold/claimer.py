@@ -12,7 +12,7 @@ from services.deploy import ClaimerScheduler
 
 @logger.catch()
 def deploy(unreal: typing.Optional[bool] = False):
-    """在微小容器中部署 `claim` 定时调度任务"""
+    """Deploy in tiny containers `claim` Scheduled tasks"""
     ClaimerScheduler(silence=True, unreal=unreal).deploy_on_vps()
 
 
@@ -22,5 +22,5 @@ def run(
     log_ignore: typing.Optional[bool] = None,
     unreal: typing.Optional[bool] = False,
 ):
-    """运行 `claim` 单步子任务，认领周免游戏"""
+    """Running `claim` Single-step sub-task, claiming weekly free games"""
     ClaimerScheduler(silence=silence, unreal=unreal).job_loop_claim(log_ignore)
